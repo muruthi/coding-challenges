@@ -15,7 +15,7 @@ public class Solution {
 
     private static final String KEY_WATER_FUNCTIONING_YES = "water_function";
     private static final String KEY_WATER_FUNCTIONING_NO = "no_water_function";
-    private static final String KEY_WATER_FUNCTIONING_UNKWOWN = "unknown_water_function";
+    private static final String KEY_WATER_FUNCTIONING_UNKNOWN = "unknown_water_function";
 
     private static void calculate(String stringUrl){
         if(stringUrl.isEmpty()) stringUrl = URL_ONA_RAW_DATA;
@@ -33,7 +33,7 @@ public class Solution {
                     HashMap<String,Integer> hashMap = new HashMap<String,Integer>(3){{
                         put(KEY_WATER_FUNCTIONING_YES,0);
                         put(KEY_WATER_FUNCTIONING_NO,0);
-                        put(KEY_WATER_FUNCTIONING_UNKWOWN,0);
+                        put(KEY_WATER_FUNCTIONING_UNKNOWN,0);
                     }};
                     multiMap.put(community.getName(),hashMap);
                 }
@@ -44,13 +44,13 @@ public class Solution {
                     multiMap.get(community.getName()).put(KEY_WATER_FUNCTIONING_NO,multiMap.get(community.getName()).get(KEY_WATER_FUNCTIONING_NO)+1);
                 }
                 else {
-                    multiMap.get(community.getName()).put(KEY_WATER_FUNCTIONING_UNKWOWN,multiMap.get(community.getName()).get(KEY_WATER_FUNCTIONING_UNKWOWN)+1);
+                    multiMap.get(community.getName()).put(KEY_WATER_FUNCTIONING_UNKNOWN,multiMap.get(community.getName()).get(KEY_WATER_FUNCTIONING_UNKNOWN)+1);
                 }
             }
 
             Response response = new Response(0);
             for(Map.Entry<String, HashMap<String, Integer>> entry : multiMap.entrySet()) {
-                int waterPointCount = entry.getValue().get(KEY_WATER_FUNCTIONING_YES) + entry.getValue().get(KEY_WATER_FUNCTIONING_NO) + entry.getValue().get(KEY_WATER_FUNCTIONING_UNKWOWN);
+                int waterPointCount = entry.getValue().get(KEY_WATER_FUNCTIONING_YES) + entry.getValue().get(KEY_WATER_FUNCTIONING_NO) + entry.getValue().get(KEY_WATER_FUNCTIONING_UNKNOWN);
                 response.setNumberFunctional(response.getNumberFunctional() + entry.getValue().get(KEY_WATER_FUNCTIONING_YES));
                 response.getCommunityWaterPointsCount().add(new Response.Wrapper<>().set(entry.getKey(),waterPointCount));
                 response.getCommunityWaterPointsRanking().add(new Response.Wrapper().set(entry.getKey(),communityRanking(entry.getValue().get(KEY_WATER_FUNCTIONING_YES),waterPointCount)));
