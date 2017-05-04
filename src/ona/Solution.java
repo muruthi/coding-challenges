@@ -22,9 +22,7 @@ public class Solution {
         try {
             URL url = new URL(stringUrl);
             ObjectMapper mapper = new ObjectMapper();
-            System.out.println("Retrieving data");
             List<Community> communities = mapper.readValue(url,new TypeReference<List<Community>>(){});
-            System.out.println("Data Retrieved");
             Map<String,HashMap<String,Integer>> multiMap = new HashMap<>();
 
             for(Community community:communities){
