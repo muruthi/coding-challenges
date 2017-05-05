@@ -2,8 +2,8 @@ package ona;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.sql.Wrapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +13,11 @@ import java.util.Map;
  */
 public class Response {
 
+    @JsonProperty("number_functional")
     private int numberFunctional;
+    @JsonProperty("number_water_points")
     private ArrayList<Wrapper> communityWaterPointsCount;
+    @JsonProperty("community_ranking")
     private ArrayList<Wrapper> communityWaterPointsRanking;
 
     public Response(int numberFunctional) {
