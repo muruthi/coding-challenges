@@ -17,7 +17,7 @@ public class Solution {
     private static final String KEY_WATER_FUNCTIONING_NO = "no_water_function";
     private static final String KEY_WATER_FUNCTIONING_UNKNOWN = "unknown_water_function";
 
-    private static void calculate(String stringUrl){
+    private void calculate(String stringUrl){
         if(stringUrl.isEmpty()) stringUrl = URL_ONA_RAW_DATA;
         try {
             URL url = new URL(stringUrl);
@@ -62,13 +62,14 @@ public class Solution {
         }
     }
 
-    private static float communityRanking(int functioningWaterPoints, int waterPointCount) {
+    private float communityRanking(int functioningWaterPoints, int waterPointCount) {
         if(functioningWaterPoints==0) return 0;
         return (functioningWaterPoints * 100.0f) / waterPointCount;
     }
 
     public static void main(String[] args) {
-        calculate(getStringUrl());
+        Solution solution = new Solution();
+        solution.calculate(getStringUrl());
     }
 
     private static String getStringUrl() {
