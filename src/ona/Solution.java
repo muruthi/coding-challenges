@@ -17,7 +17,9 @@ public class Solution {
     private static final String KEY_WATER_FUNCTIONING_NO = "no_water_function";
     private static final String KEY_WATER_FUNCTIONING_UNKNOWN = "unknown_water_function";
 
-    private static void calculate(String stringUrl){
+    private static final String DEFAULT_SPLIT_KEY = "road_available";
+
+    private void calculate(String stringUrl){
         if(stringUrl.isEmpty()) stringUrl = URL_ONA_RAW_DATA;
         try {
             URL url = new URL(stringUrl);
@@ -51,7 +53,7 @@ public class Solution {
                 int waterPointCount = entry.getValue().get(KEY_WATER_FUNCTIONING_YES) + entry.getValue().get(KEY_WATER_FUNCTIONING_NO) + entry.getValue().get(KEY_WATER_FUNCTIONING_UNKNOWN);
                 response.setNumberFunctional(response.getNumberFunctional() + entry.getValue().get(KEY_WATER_FUNCTIONING_YES));
                 response.getCommunityWaterPointsCount().add(new Response.Wrapper<>().set(entry.getKey(),waterPointCount));
-                response.getCommunityWaterPointsRanking().add(new Response.Wrapper().set(entry.getKey(),communityRanking(entry.getValue().get(KEY_WATER_FUNCTIONING_YES),waterPointCount)));
+                response.getCommunityWaterPointsRanking().add(new Response.Wrapper().set(entry.getKey(), calculatePercentage(entry.getValue().get(KEY_WATER_FUNCTIONING_YES),waterPointCount)));
             }
 
             String jsonResponse = mapper.writeValueAsString(response);
@@ -62,18 +64,71 @@ public class Solution {
         }
     }
 
-    private static float communityRanking(int functioningWaterPoints, int waterPointCount) {
-        if(functioningWaterPoints==0) return 0;
-        return (functioningWaterPoints * 100.0f) / waterPointCount;
+    private float calculatePercentage(int count, int totalCount) {
+        if(count==0) return 0;
+        return (count * 100.0f) / totalCount;
     }
 
     public static void main(String[] args) {
-        calculate(getStringUrl());
+        Solution solution = new Solution();
+        solution.getCalculateSplitKey(getInput("Enter your raw data url and press enter (optional) : "),getInput("Enter your split key (defaults to 'road_available') : "));
     }
 
-    private static String getStringUrl() {
+    private static String getInput(String hint) {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter your raw data url and press enter (optional) : ");
+        System.out.print(hint);
         return scanner.nextLine();
+    }
+
+    String getCalculateSplitKey(String json, String splitKey){
+        if(json.isEmpty()) json = URL_ONA_RAW_DATA;
+        if(splitKey.isEmpty()) splitKey = DEFAULT_SPLIT_KEY;
+        try {
+            URL url = null;
+            if(json.startsWith("http")) url = new URL(json);
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            ArrayList<Map<String, String>> jsonArray = url != null ? mapper.readValue(url,new TypeReference<ArrayList<Map>>(){}) : mapper.readValue(json,new TypeReference<ArrayList<Map>>(){});
+
+            Map<String,MutableInt> splitKeyCountMap = new HashMap<>();
+            int total=0;
+            for(Map<String, String> jsonObject: jsonArray){
+                if(jsonObject.containsKey(splitKey)){
+                    MutableInt count = splitKeyCountMap.get(jsonObject.get(splitKey));
+                    if (count == null) {
+                        splitKeyCountMap.put(jsonObject.get(splitKey), new MutableInt());
+                    }
+                    else {
+                        count.increment();
+                    }
+                    ++total;
+                }
+            }
+
+            Map<String,Float> response = new TreeMap<>();
+
+            for(Map.Entry<String,MutableInt> mapEntry : splitKeyCountMap.entrySet()){
+                response.put(mapEntry.getKey(),calculatePercentage(mapEntry.getValue().get(),total));
+            }
+
+            System.out.println(response);
+            return response.toString();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    class MutableInt {
+        int value = 1; // note that we start at 1 since we're counting
+        void increment() { ++value;      }
+        int get()       { return value; }
+
+        @Override
+        public String toString() {
+            return String.valueOf(get());
+        }
     }
 }
